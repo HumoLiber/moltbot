@@ -1,0 +1,27 @@
+version: "3.8"
+
+services:
+  moltbot:
+    build:
+      context: ..
+      dockerfile: security/Dockerfile
+    container_name: moltbot-agent
+    user: moltbot
+    read_only: true
+    tmpfs:
+      - /tmp
+    volumes:
+      - ../.openclaw:/workspace/.openclaw:rw
+      - ../channels:/workspace/channels:rw
+    env_file:
+      - ../.env
+    networks:
+      - moltbot-net
+    restart: unless-stopped
+
+networks:
+  moltbot-net:
+    driver: bridge
+    # Network segmentation: only whitelisted endpoints are reachable
+    # Configure firewall rules or use Docker network policies
+    # to restrict outbound traffic to allowed endpoints only
