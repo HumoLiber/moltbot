@@ -3,12 +3,14 @@
 ## Threat Model
 
 ### Primary Threats
-1. **Prompt Injection** — malicious messages that manipulate agent behavior
-2. **Data Exfiltration** — attempts to extract sensitive data via channels
-3. **Unauthorized Access** — someone else messaging the agent
+1. **Prompt Injection** — malicious messages via any channel that manipulate agent behavior
+2. **Data Exfiltration** — attempts to extract contact graph or message history
+3. **Unauthorized Access** — someone else sending commands to the bot
 4. **Host Compromise** — agent escaping sandbox to access host filesystem
+5. **Channel Hijacking** — compromised OAuth tokens or session takeover
 
-### Mitigation Strategy
+### Critical Asset: Communication Graph
+The contact graph contains aggregated data from 6 channels. Its compromise would expose all communication history. It must never leave the local machine.
 
 ## 1. Sandboxing (Docker)
 
@@ -28,48 +30,66 @@ docker run --rm -it \
   moltbot-sandbox
 ```
 
-## 2. Channel Restrictions
+## 2. Telegram-Only Approval
 
-Configure OpenClaw to accept messages only from authorized accounts:
-- WhatsApp: your phone number only
-- Discord: specific user ID / server only
+- Every outbound action requires explicit approval in Telegram
+- Only messages from `TELEGRAM_AUTHORIZED_USER_ID` are processed as commands
+- All other Telegram messages are ignored
+- If Telegram is unreachable, all actions pause
 
-## 3. Model Selection
+## 3. Channel Restrictions
 
-Use the most capable model available (Claude) — larger models are significantly more resistant to prompt injection than smaller ones.
+| Channel | Authorization |
+|---------|--------------|
+| Telegram | Bot token + authorized user ID |
+| Gmail | OAuth 2.0 (read + send scopes only) |
+| Instagram | Access token, your account only |
+| LinkedIn | Access token, your account only |
+| WhatsApp | QR session, your number only |
+| Viber | Auth token, your account only |
 
-## 4. Regular Audits
+## 4. Model Selection
+
+Use Claude (Anthropic) — larger models are significantly more resistant to prompt injection than smaller ones.
+
+## 5. Regular Audits
 
 ```bash
-# Full security audit
 openclaw security audit deep
-
-# Health check
 openclaw doctor
 ```
 
-## 5. Secrets Management
+## 6. Secrets Management
 
 - All tokens/keys in `.env` file (gitignored)
 - Never hardcode credentials
 - Each workstation maintains its own `.env`
 - Rotate tokens periodically
+- Gmail OAuth refresh tokens stored locally only
 
-## 6. Network Policy
+## 7. Network Policy
 
-- No outbound connections except:
-  - AI model API (Anthropic)
-  - WhatsApp Web socket
-  - Discord gateway
-  - Shinodo local MCP endpoint
-- All other traffic blocked at Docker network level
+No outbound connections except:
+- Anthropic API (AI model)
+- Telegram Bot API
+- Gmail API
+- Instagram Graph API
+- LinkedIn API
+- WhatsApp Web socket
+- Viber API
+- Shinodo local MCP/A2A endpoint (localhost only)
+
+All other traffic blocked at Docker network level.
 
 ## Checklist
 
 - [ ] Docker installed and configured
-- [ ] `.env` file created with tokens (not committed)
-- [ ] Channel restrictions configured (authorized accounts only)
+- [ ] `.env` created with all tokens (not committed)
+- [ ] Telegram bot created, authorized user ID set
+- [ ] Gmail OAuth configured with minimum scopes
+- [ ] All channel tokens configured
 - [ ] `openclaw security audit deep` passed
 - [ ] `openclaw doctor` shows no issues
 - [ ] Network policy applied in Docker compose
 - [ ] Sandbox tested — agent cannot access host files
+- [ ] Contact graph database is local-only (verified)
