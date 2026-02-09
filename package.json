@@ -1,0 +1,16 @@
+{
+  "name": "moltbot",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Local-first AI assistant built on OpenClaw",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "start": "openclaw start",
+    "setup": "openclaw onboard --install-demon",
+    "channels": "openclaw channels login",
+    "audit": "openclaw security audit deep",
+    "doctor": "openclaw doctor"
+  }
+}
