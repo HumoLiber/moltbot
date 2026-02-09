@@ -1,12 +1,13 @@
 # Moltbot
 
-Local-first AI communications hub built on [OpenClaw](https://github.com/openclaw). Manages all your messaging channels from one place, controlled via Telegram.
+Local-first AI communications hub and dev ops assistant built on [OpenClaw](https://github.com/openclaw). Manages messaging channels, operates dev tools, controlled via Telegram.
 
 ## What It Does
 
 - **Unified inbox** — aggregates messages from Gmail, Instagram DM, LinkedIn, WhatsApp, Telegram, Viber
 - **Communication graph** — CRM-style contact history across all channels (who said what, where, when)
 - **Smart actions** — drafts replies, sends messages on your behalf after you approve in Telegram
+- **Dev tools** — operates Claude Code and Cursor IDE for code tasks (reviews, fixes, features)
 - **Shinodo integration** — pulls user data via MCP/A2A for context-aware communication
 - **100% local** — no cloud, no data leaves your machine
 
@@ -63,7 +64,9 @@ moltbot/
 │       ├── linkedin.md     # LinkedIn messaging
 │       ├── whatsapp.md     # WhatsApp
 │       ├── viber.md        # Viber
-│       └── contacts.md     # Communication graph
+│       ├── contacts.md     # Communication graph
+│       ├── claude-code.md  # Claude Code CLI operations
+│       └── cursor.md       # Cursor IDE coordination
 ├── channels/               # Channel-specific configs
 │   ├── telegram/           # Control channel (bot)
 │   ├── gmail/
